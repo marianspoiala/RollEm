@@ -1,6 +1,6 @@
 [3.11.2015 14:00]: 
   * Listele ar trebui acum sa fie complete 
-  * Trebuie verificat fisierul FinalListOfWords.txt deoarece nu contine toate cuvintele din fisiere (ex: șarpe, șarpie) 
+  * Fisierul care se va utiliza este de fapt FinalListOfWords.txt
 
 **********************************************************************
 [28.10.2015]:
