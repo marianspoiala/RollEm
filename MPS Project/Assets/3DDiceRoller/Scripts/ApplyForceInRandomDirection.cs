@@ -16,17 +16,17 @@ public class ApplyForceInRandomDirection : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        if (Input.GetKeyDown("space") && !started)
+        if (Input.GetKeyDown("space") && (!started || true))
         {
             started = true;
             GetComponent<Rigidbody>().useGravity = started;
             GetComponent<Rigidbody>().mass = 1;
             Vector3 force = new Vector3((Random.value - 0.5f) * ForceAmount,
-            0,
+            (Random.value / 2 + 0.5f) * ForceAmount * 2,
             (Random.value - 0.5f) * ForceAmount);
 
             GetComponent<Rigidbody>().AddForce(force, forceMode);
-            GetComponent<Rigidbody>().AddTorque(Random.onUnitSphere, forceMode);
+            GetComponent<Rigidbody>().AddTorque(Random.onUnitSphere*2, forceMode);
         }
         if(isMoving && started && GetComponent<Rigidbody>().velocity == new Vector3(0,0,0))
         {
