@@ -10,6 +10,7 @@ Spoiala Marian, 342C5, spoialamarian@gmail.com  (dev back-end)
 Avram Florin, 342C3, avram.florin.c@gmail.com (devback-end, analist)        
 Gavril Alexandru, 341C4, alexandru.gavril.florin@gmail.com (dev front-end)
 
-
+Good to know:
+  * dieces textures can be downloaded from here (https://drive.google.com/open?id=0B_y5RIclGIIJUHBuYUVIdllWTE0)
 
 
