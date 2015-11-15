@@ -16,7 +16,7 @@ public class MainCanvas : MonoBehaviour {
     GameObject scoreText;
     GameObject topUsersListText;
 
-    const float GAME_TIME = 10.0f;
+    const float GAME_TIME = 30.0f;
     const string FILE_PATH = "users.json";
 
     float timeLeft = 0;
@@ -139,9 +139,19 @@ public class MainCanvas : MonoBehaviour {
 
     //Verificare daca exista cuvant in TRIE si returnare scor asociat.
     //returnare -1 in caz ca nu exista;
+    //returnare -2 in caz ca nu e format din litere zarurilor
     public int CheckInTrie(string word)
     {
-        
+        //In prima faza ar trebui verificat daca este alcatuit cuvantul doar din currentLetters
+        foreach (char c in word)
+        {
+            if (!currentLetters.Contains(c.ToString().ToUpper()))
+            {
+                return -2;
+            }
+        }
+
+        //Verificare in trie
         return word.Length;
     }
 
