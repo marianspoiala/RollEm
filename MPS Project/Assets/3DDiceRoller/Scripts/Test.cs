@@ -3,7 +3,7 @@ using System.Collections;
 using System;
 
 public class Test : MonoBehaviour {
-
+    /*
 	// Use this for initialization
 	void Start () {
 	
@@ -59,5 +59,5 @@ public class Test : MonoBehaviour {
             
         }
         return result;
-    }
+    }*/
 }

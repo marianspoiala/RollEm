@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class MainCanvas : MonoBehaviour {
 
-    public enum GameState { Started, Stopped };
+    public enum GameState { Started, Stopped, DicesRolling };
 
     GameObject startBtn;
     GameObject wordBtn;
@@ -14,13 +14,15 @@ public class MainCanvas : MonoBehaviour {
     GameObject wordsListText;
     GameObject nameText;
     GameObject scoreText;
+    GameObject topUsersListText;
 
     const float GAME_TIME = 10.0f;
     const string FILE_PATH = "users.json";
 
     float timeLeft = 0;
     GameState gameState;
-    List<string> wordsList;    
+    List<string> wordsList;
+    string currentLetters; 
 
     GameUtilsIF gameUtils;
     UserDTO currentUser;
@@ -37,6 +39,7 @@ public class MainCanvas : MonoBehaviour {
         wordsListText = GameObject.Find("WordsListText");
         nameText = GameObject.Find("NameText");
         scoreText = GameObject.Find("ScoreText");
+        topUsersListText = GameObject.Find("TopUsersListText");
 
         //Make gameUtils services available
         gameUtils = new GameUtils();
@@ -51,7 +54,7 @@ public class MainCanvas : MonoBehaviour {
         wordBtn.SetActive(false);
         wordBtn.GetComponent<Button>().onClick.RemoveAllListeners();
         wordInput.SetActive(false);
-        wordsListView.SetActive(false);        
+        wordsListView.SetActive(false);
 
         //Initialise
         timeLeft = GAME_TIME;
@@ -64,7 +67,23 @@ public class MainCanvas : MonoBehaviour {
         wordsListText.GetComponent<Text>().text = "";
         userNameInput.GetComponent<InputField>().text = "";
         nameText.GetComponent<Text>().text = "";
-        scoreText.GetComponent<Text>().text = "";        
+        scoreText.GetComponent<Text>().text = "";
+        topUsersListText.GetComponent<Text>().text = "";
+
+        //Get top users list
+        topUsersList = gameUtils.loadUsersDetails(FILE_PATH);
+        topUsersList.Sort(delegate (UserDTO x, UserDTO y)
+        {
+            return y.GetScore().CompareTo(x.GetScore());
+        });
+        PrintTopUsersList();
+    }
+
+    public void PrintTopUsersList()
+    {
+        foreach(UserDTO user in topUsersList) {
+            topUsersListText.GetComponent<Text>().text += "\n" + user.GetName() + " " + user.GetScore();
+        }
     }
 
 	// Update is called once per frame
@@ -88,7 +107,10 @@ public class MainCanvas : MonoBehaviour {
 
     public void StartGame()
     {
-        gameState = GameState.Started;
+        //Roll the dices
+        GameObject dices = GameObject.Find("Dices");
+        dices.SendMessage("RollDices");
+        gameState = GameState.DicesRolling;
 
         //Set username and score
         currentUser.SetName(userNameInput.GetComponent<InputField>().text);
@@ -104,14 +126,15 @@ public class MainCanvas : MonoBehaviour {
         //Disable start button and user name input after clicking Start Game
         startBtn.SetActive(false);
         startBtn.GetComponent<Button>().onClick.RemoveAllListeners();
-        userNameInput.SetActive(false);
+        userNameInput.SetActive(false);        
+    }
 
-        //Get top users list
-        topUsersList = gameUtils.loadUsersDetails(FILE_PATH);
-        topUsersList.Sort(delegate (UserDTO x, UserDTO y)
-        {
-            return y.GetScore().CompareTo(x.GetScore());
-        });
+    //Daca toate zarurile s-au oprit, se porneste timerul si se preiau literele de pe fetele superioare
+    public void DicesStoppedMoving()
+    {
+        gameState = GameState.Started;
+        currentLetters = getLetters();
+        print(currentLetters);
     }
 
     //Verificare daca exista cuvant in TRIE si returnare scor asociat.
@@ -119,7 +142,7 @@ public class MainCanvas : MonoBehaviour {
     public int CheckInTrie(string word)
     {
         
-        return 2;
+        return word.Length;
     }
 
     public void CheckWord()
@@ -161,10 +184,39 @@ public class MainCanvas : MonoBehaviour {
             return y.GetScore().CompareTo(x.GetScore());
         });
         //Stergere ultim user din lista astfel incat sa se salveze mereu maxim 10
-        if (topUsersList.Count >= 10)
+        if (topUsersList.Count > 10)
         {
-            topUsersList.RemoveAt(topUsersList.Count - 1);
+            topUsersList.RemoveAt(topUsersList.Count-1);
         }
         gameUtils.saveUsersDetails(topUsersList, FILE_PATH);
+    }
+
+    string getLetters()
+    {
+        //Should be called only if there isn't movemenet!
+        string result = "";
+
+        for (int i = 1; i < 10; i++)
+        {
+            Rigidbody x = GameObject.Find("Dice" + i.ToString()).GetComponent<Rigidbody>();
+
+            Transform[] faces = x.GetComponentsInChildren<Transform>();
+            int highestFace = 0;
+            float highest = -99f;
+            for (int j = 0; j < faces.Length; j++)
+            {
+                if (faces[j].transform.position.y >= highest)
+                {
+                    highest = faces[j].transform.position.y;
+                    highestFace = j;
+                }
+            }
+
+            //x.transform.rotation.Set(x.transform.rotation.x, 0, x.transform.rotation.z, x.transform.rotation.w);
+            x.transform.rotation.Set(1, 1, 1, 0.5f);
+            result += faces[highestFace].name;
+
+        }
+        return result;
     }
 }
