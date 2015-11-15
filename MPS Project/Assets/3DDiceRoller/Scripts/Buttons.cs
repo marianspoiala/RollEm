@@ -4,24 +4,9 @@ using UnityEngine.UI;
 
 //This script is used for every button and input on the scene
 public class Buttons : MonoBehaviour {
-
-    GameObject startBtn;
-    GameObject wordBtn;
-    GameObject wordInput;
-    GameObject userNameInput;
-    GameObject wordsListView;
-    GameObject wordsListText;
-
+    
     // Use this for initialization
     void Start () {
-
-        //Initialize buttons and inputs
-        startBtn = GameObject.Find("StartBtn");
-        wordBtn = GameObject.Find("WordBtn");
-        wordInput = GameObject.Find("WordInput");
-        userNameInput = GameObject.Find("UserNameInput");
-        wordsListView = GameObject.Find("WordsListView");
-        wordsListText = GameObject.Find("WordsListText");
     }
 	
 	// Update is called once per frame
@@ -45,40 +30,21 @@ public class Buttons : MonoBehaviour {
 
     }
 
-    void StartFunction()// your listener calls this function
+    //Start button listener function
+    void StartFunction()
     {
-        InputField userName = userNameInput.GetComponent<InputField>();
-        print("Start game! " + userName.text);
+        print("Game started!");        
 
-        //Activate word input and button
-        wordBtn.SetActive(true);
-        wordInput.SetActive(true);
-        wordsListView.SetActive(true);
-        //Resetting words from words list view
-        wordsListText.GetComponent<Text>().text = "";
-
-        //Disable start button and user name input after clicking Start Game
-        startBtn.SetActive(false);
-        startBtn.GetComponent<Button>().onClick.RemoveAllListeners();
-        userNameInput.SetActive(false);
+        //Send message to MainCanvas to start game
+        SendMessageUpwards("StartGame");
     }
 
-    void WordFunction()// your listener calls this function
+    //Word button listener function
+    void WordFunction()
     {
-        InputField word = wordInput.GetComponent<InputField>();
+        print("Word enter button pressed!");
 
-        //Adding word to words list view on GUI
-        if (wordsListText.GetComponent<Text>().text == "")
-        {
-            wordsListText.GetComponent<Text>().text = word.text;
-        }
-        else
-        {
-            wordsListText.GetComponent<Text>().text += "\n" + word.text;
-        }
-
-        //Sending word to MainCanvas to be saved in file
-
-        print("Word enter button pressed! " + word.text);
+        //Sending word to MainCanvas to be checked if correct and added on GUI
+        SendMessageUpwards("CheckWord");        
     }
 }
