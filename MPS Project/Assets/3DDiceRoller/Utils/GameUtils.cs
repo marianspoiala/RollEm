@@ -9,9 +9,10 @@ class GameUtils : GameUtilsIF
 
     private void saveUsersToFile(List<UserDTO> users, String fileName)
     {
-        string json = JsonConvert.SerializeObject(users, Formatting.Indented);
+        /*string json = JsonConvert.SerializeObject(users, Formatting.Indented);
         // serialize JSON to a string and then write string to a file
         File.WriteAllText(@fileName, JsonConvert.SerializeObject(users, Formatting.Indented));
+        */
 
         // serialize JSON directly to a file
         using (StreamWriter file = File.CreateText(@fileName))
@@ -44,7 +45,14 @@ class GameUtils : GameUtilsIF
         }
         catch(FileNotFoundException ex)
         {
-
+            Console.WriteLine("Nu a fost gasit fisierul!");
+        }
+        finally
+        {
+            if (users == null)
+            {
+                users = new List<UserDTO>();
+            }
         }
 
         return users;

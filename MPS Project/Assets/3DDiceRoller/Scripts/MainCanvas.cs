@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System;
 
 public class MainCanvas : MonoBehaviour {
 
@@ -16,7 +17,7 @@ public class MainCanvas : MonoBehaviour {
     GameObject scoreText;
     GameObject topUsersListText;
 
-    const float GAME_TIME = 30.0f;
+    const float GAME_TIME = 60.0f;
     const string FILE_PATH = "users.json";
 
     float timeLeft = 0;
@@ -27,6 +28,66 @@ public class MainCanvas : MonoBehaviour {
     GameUtilsIF gameUtils;
     UserDTO currentUser;
     List<UserDTO> topUsersList;
+
+    Trie wordsTrie;
+    Dictionary<char, int> lettersScore;
+
+    void SetLettersScore()
+    {
+        lettersScore = new Dictionary<char, int>();
+        lettersScore.Add('a', 1);
+        lettersScore.Add('b',  9);
+        lettersScore.Add('c', 1);
+        lettersScore.Add('d', 2);
+        lettersScore.Add('e', 1);
+        lettersScore.Add('f', 8);
+        lettersScore.Add('g', 9);
+        lettersScore.Add('h', 10);
+        lettersScore.Add('i', 1);
+        lettersScore.Add('j', 10);
+        lettersScore.Add('k', 9);
+        lettersScore.Add('l', 1);
+        lettersScore.Add('m', 4);
+        lettersScore.Add('n', 1);
+        lettersScore.Add('o', 1);
+        lettersScore.Add('p', 2);
+        lettersScore.Add('q', 1);
+        lettersScore.Add('r', 1);
+        lettersScore.Add('s', 1);
+        lettersScore.Add('t', 1);
+        lettersScore.Add('u', 1);
+        lettersScore.Add('v', 8);
+        lettersScore.Add('w', 5);
+        lettersScore.Add('x', 10);
+        lettersScore.Add('y', 8);
+        lettersScore.Add('z', 10);
+
+        lettersScore.Add('ă', 1);
+        lettersScore.Add('ț', 1);
+        lettersScore.Add('â', 1);
+        lettersScore.Add('ș', 1);
+        lettersScore.Add('î', 1);
+    }
+
+    void InitialiseTrie()
+    {
+        int counter = 0;
+        string line;
+
+        wordsTrie = new Trie();
+
+        // Read the file and display it line by line.
+        System.IO.StreamReader file =
+            new System.IO.StreamReader(@"FinalListOfWords.txt");
+        while ((line = file.ReadLine()) != null)
+        {
+            wordsTrie.AddWord(line.Trim());
+            counter++;
+        }
+
+        file.Close();
+        print("There were " + counter + " lines.");
+    }
 
     // Use this for initialization
     void Start () {
@@ -44,6 +105,10 @@ public class MainCanvas : MonoBehaviour {
         //Make gameUtils services available
         gameUtils = new GameUtils();
         ResetGame();
+
+        //Initialise trie with words from file
+        InitialiseTrie();
+        SetLettersScore();
     }
 	
     void ResetGame()
@@ -81,8 +146,17 @@ public class MainCanvas : MonoBehaviour {
 
     public void PrintTopUsersList()
     {
+        Boolean isFirst = true;
         foreach(UserDTO user in topUsersList) {
-            topUsersListText.GetComponent<Text>().text += "\n" + user.GetName() + " " + user.GetScore();
+            if (isFirst)
+            {
+                topUsersListText.GetComponent<Text>().text = user.GetName() + " " + user.GetScore();
+                isFirst = false;
+            }
+            else
+            {
+                topUsersListText.GetComponent<Text>().text += "\n" + user.GetName() + " " + user.GetScore();
+            }
         }
     }
 
@@ -137,22 +211,64 @@ public class MainCanvas : MonoBehaviour {
         print(currentLetters);
     }
 
-    //Verificare daca exista cuvant in TRIE si returnare scor asociat.
+    //Verificare daca exista cuvant in TRIE
+    //returnare scor in caz ca este cuvant valid
     //returnare -1 in caz ca nu exista;
     //returnare -2 in caz ca nu e format din litere zarurilor
     public int CheckInTrie(string word)
-    {
-        //In prima faza ar trebui verificat daca este alcatuit cuvantul doar din currentLetters
+    {        
+        word = word.ToLower();
+        if (wordsList.Contains(word))
+        {
+            return -3;
+        }
+
+        int score = 0;
+        //Put letters in an array of letters
+        currentLetters = currentLetters.ToLower();
+        int[] diceLetters = new int[150];
+        foreach (char c in currentLetters) {
+            diceLetters[c]++;
+        }
+        
+        //Verificare daca este format din literele de pe zaruri
+        //Adunare scor pt fiecare litera
         foreach (char c in word)
         {
-            if (!currentLetters.Contains(c.ToString().ToUpper()))
+            char x = c;
+            if (x== 'ă' || x== 'â')
+            {
+                x = 'a';
+            }
+            else if (x == 'ș')
+            {
+                x = 's';
+            }
+            else if (x == 'ț')
+            {
+                x = 't';
+            }
+            else if (x == 'î')
+            {
+                x = 'i';
+            }
+
+            if (diceLetters[x] > 0)
+            {
+                score += lettersScore[c];
+                diceLetters[x]--;
+            }
+            else
             {
                 return -2;
             }
         }
 
         //Verificare in trie
-        return word.Length;
+        if (!wordsTrie.LookUp(word))
+            return -1; 
+
+        return score;
     }
 
     public void CheckWord()
