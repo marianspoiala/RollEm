@@ -8,10 +8,16 @@ public class Dice : MonoBehaviour {
     public float AngularForceAmount = 10.0f;
     public bool isMoving = true;
     public bool started = false;
-	// Use this for initialization
-	void Start () {
+    public float initialXPosition;
+    public float initialYPosition;
+    public float initialZPosition;
+    // Use this for initialization
+    void Start () {
         GetComponent<Rigidbody>().mass = 0;
         GetComponent<Rigidbody>().useGravity = started;
+        initialZPosition = GetComponent<Rigidbody>().position.z;
+        initialXPosition = GetComponent<Rigidbody>().position.x;
+        initialYPosition = GetComponent<Rigidbody>().position.y;
     }
 
     // Update is called once per frame
@@ -28,7 +34,8 @@ public class Dice : MonoBehaviour {
             GetComponent<Rigidbody>().AddForce(force, forceMode);
             GetComponent<Rigidbody>().AddTorque(Random.onUnitSphere*2, forceMode);
         }*/
-        if (isMoving && started && GetComponent<Rigidbody>().velocity == new Vector3(0,0,0))
+       
+        if (isMoving && started && GetComponent<Rigidbody>().velocity == new Vector3(0,0,0) && initialZPosition != GetComponent<Rigidbody>().position.z)
         {
             print("M-am oprit!");
             isMoving = false;
@@ -39,6 +46,7 @@ public class Dice : MonoBehaviour {
 
     public void StartRolling()
     {
+        GetComponent<Rigidbody>().transform.position = new Vector3(initialXPosition, initialYPosition, initialZPosition);// initialZPosition;
         if (!started)
         {
             started = true;
