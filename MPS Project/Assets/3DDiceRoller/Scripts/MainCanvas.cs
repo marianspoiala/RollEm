@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System;
+using System.Text.RegularExpressions;
 
 public class MainCanvas : MonoBehaviour {
 
@@ -16,6 +17,11 @@ public class MainCanvas : MonoBehaviour {
     GameObject nameText;
     GameObject scoreText;
     GameObject topUsersListText;
+    GUIStyle timerStyle;
+    GameObject gameTitle;
+    GameObject gameTimer;
+    GameObject lettersPanelText;
+    GameObject lettersPanel;
 
     const float GAME_TIME = 60.0f;
     const string FILE_PATH = "users.json";
@@ -101,6 +107,10 @@ public class MainCanvas : MonoBehaviour {
         nameText = GameObject.Find("NameText");
         scoreText = GameObject.Find("ScoreText");
         topUsersListText = GameObject.Find("TopUsersListText");
+        gameTitle = GameObject.Find("GameTitle");
+        gameTimer = GameObject.Find("GameTimer");
+        lettersPanelText = GameObject.Find("LettersPanelText");
+        lettersPanel = GameObject.Find("LettersPanel");
 
         //Make gameUtils services available
         gameUtils = new GameUtils();
@@ -109,6 +119,12 @@ public class MainCanvas : MonoBehaviour {
         //Initialise trie with words from file
         InitialiseTrie();
         SetLettersScore();
+
+        //Timer style
+        timerStyle = new GUIStyle();
+        timerStyle.normal.textColor = Color.black;
+ 
+        //timerStyle.font.fontSize = 18;
     }
 	
     void ResetGame()
@@ -120,6 +136,9 @@ public class MainCanvas : MonoBehaviour {
         wordBtn.GetComponent<Button>().onClick.RemoveAllListeners();
         wordInput.SetActive(false);
         wordsListView.SetActive(false);
+        gameTimer.SetActive(false);
+        gameTitle.SetActive(true);
+        lettersPanel.SetActive(false);
 
         //Initialise
         timeLeft = GAME_TIME;
@@ -176,7 +195,8 @@ public class MainCanvas : MonoBehaviour {
 
     void OnGUI()
     {
-        GUI.Label(new Rect(10, 10, 150, 100), timeLeft.ToString());
+        //GUI.Label(new Rect(10, 10, 150, 100), "Timp ramas : " + timeLeft.ToString(), timerStyle);
+        gameTimer.GetComponent<Text>().text = timeLeft.ToString();
     }
 
     public void StartGame()
@@ -189,18 +209,23 @@ public class MainCanvas : MonoBehaviour {
         //Set username and score
         currentUser.SetName(userNameInput.GetComponent<InputField>().text);
         currentUser.SetScore(0);
-        nameText.GetComponent<Text>().text = "Name : " + currentUser.GetName();
-        scoreText.GetComponent<Text>().text = "Score : 0";
+        nameText.GetComponent<Text>().text = "Nume : " + currentUser.GetName();
+        scoreText.GetComponent<Text>().text = "Scor : 0";
 
         //Activate word input and button
         wordBtn.SetActive(true);
         wordInput.SetActive(true);
-        wordsListView.SetActive(true);        
+        wordsListView.SetActive(true); 
 
         //Disable start button and user name input after clicking Start Game
         startBtn.SetActive(false);
         startBtn.GetComponent<Button>().onClick.RemoveAllListeners();
-        userNameInput.SetActive(false);        
+        userNameInput.SetActive(false);
+
+        //Activate timer si afisare titlu
+        gameTitle.SetActive(false);
+        gameTimer.SetActive(true);
+        gameTimer.GetComponent<Text>().text = "";   
     }
 
     //Daca toate zarurile s-au oprit, se porneste timerul si se preiau literele de pe fetele superioare
@@ -208,6 +233,10 @@ public class MainCanvas : MonoBehaviour {
     {
         gameState = GameState.Started;
         currentLetters = getLetters();
+
+        //Print letters on GUI
+        lettersPanel.SetActive(true);
+        lettersPanelText.GetComponent<Text>().text = Regex.Replace(currentLetters, ".{1}", "$0 ");
         print(currentLetters);
     }
 
@@ -287,7 +316,7 @@ public class MainCanvas : MonoBehaviour {
 
             //Update score pt userul curent
             currentUser.SetScore(currentUser.GetScore() + wordScore);
-            scoreText.GetComponent<Text>().text = "Score : " + currentUser.GetScore().ToString();
+            scoreText.GetComponent<Text>().text = "Scor : " + currentUser.GetScore().ToString();
 
             //Adding word to words list view on GUI
             if (wordsListText.GetComponent<Text>().text == "")
