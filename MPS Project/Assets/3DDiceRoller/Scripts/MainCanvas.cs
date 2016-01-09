@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System;
 using System.Text.RegularExpressions;
+using UnityEngine.EventSystems;
 
 public class MainCanvas : MonoBehaviour {
 
@@ -112,6 +113,8 @@ public class MainCanvas : MonoBehaviour {
         lettersPanelText = GameObject.Find("LettersPanelText");
         lettersPanel = GameObject.Find("LettersPanel");
 
+        //Add listener
+
         //Make gameUtils services available
         gameUtils = new GameUtils();
         ResetGame();
@@ -179,8 +182,9 @@ public class MainCanvas : MonoBehaviour {
         }
     }
 
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    void Update()
+    {
         if (timeLeft > 0 && gameState == GameState.Started)
         {
             timeLeft -= Time.deltaTime;
@@ -191,6 +195,8 @@ public class MainCanvas : MonoBehaviour {
             SaveGame();
             ResetGame();
         }
+       
+
     }
 
     void OnGUI()
@@ -201,6 +207,7 @@ public class MainCanvas : MonoBehaviour {
 
     public void StartGame()
     {
+
         //Roll the dices
         GameObject dices = GameObject.Find("Dices");
         dices.SendMessage("RollDices");
@@ -225,7 +232,10 @@ public class MainCanvas : MonoBehaviour {
         //Activate timer si afisare titlu
         gameTitle.SetActive(false);
         gameTimer.SetActive(true);
-        gameTimer.GetComponent<Text>().text = "";   
+        gameTimer.GetComponent<Text>().text = "";
+
+        EventSystem.current.SetSelectedGameObject(wordInput.gameObject, null);
+
     }
 
     //Daca toate zarurile s-au oprit, se porneste timerul si se preiau literele de pe fetele superioare
@@ -328,6 +338,10 @@ public class MainCanvas : MonoBehaviour {
                 wordsListText.GetComponent<Text>().text += "\n" + word;
             }
         }
+        wordInput.GetComponent<InputField>().text = "";
+
+        EventSystem.current.SetSelectedGameObject(wordInput.gameObject, null);
+
     }
 
     public void SaveGame()

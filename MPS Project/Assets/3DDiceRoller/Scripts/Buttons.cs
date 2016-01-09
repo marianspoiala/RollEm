@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 //This script is used for every button and input on the scene
 public class Buttons : MonoBehaviour {
@@ -45,6 +46,6 @@ public class Buttons : MonoBehaviour {
         print("Word enter button pressed!");
 
         //Sending word to MainCanvas to be checked if correct and added on GUI
-        SendMessageUpwards("CheckWord");        
+        SendMessageUpwards("CheckWord");
     }
 }
